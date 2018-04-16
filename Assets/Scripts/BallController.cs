@@ -5,15 +5,21 @@ using UnityEngine.UI;
 
 public class BallController : MonoBehaviour {
 
-	public float speed = 30;
+	public float speed = 80;
 	public float accel = 0;
+	public float lastAccel = 0;
+	public int leftScore = 0;
+	public int rightScore = 0;
+
+	private bool gameover = false;
 
 	private Rigidbody2D rigidBody;
 
 	private AudioSource audioSource;
 
 	private Vector2 lastSpeed;
-	//private Vector2 maxSpeed = (30,30);
+	[SerializeField] private Text ResultText;
+
 
 	// Use this for initialization
 	void Start () {
@@ -42,7 +48,7 @@ public class BallController : MonoBehaviour {
 		{
 			SoundManager.Instance.PlayOneShot (SoundManager.Instance.GoalSfx);
 
-			transform.position = new Vector2 (0, 0);
+			transform.position = new Vector2 (0, -10);
 
 			if (col.gameObject.name == "LeftGoal") 
 			{
@@ -76,7 +82,7 @@ public class BallController : MonoBehaviour {
 		}
 
 		rigidBody.velocity = dir * speed;
-		accel = col.otherRigidbody.velocity.y/15; //The "curve" factor
+		accel = col.otherRigidbody.velocity.y/10; //The "curve" factor
 
 
 		SoundManager.Instance.PlayOneShot (SoundManager.Instance.HitPaddleSfx);
@@ -101,12 +107,33 @@ public class BallController : MonoBehaviour {
 		int score = int.Parse (textUIComp.text);
 		score++;
 		textUIComp.text = score.ToString ();
+		if (score >= 11) {
+			if (textUIName == "LeftScoreUI") {
+
+				EndGame ("You Win!");
+			} else {
+				EndGame ("You Lose");
+			}
+		
+		}
+	}
+
+	void EndGame(string result){
+
+		Debug.Log (result);
+		ResultText.text = result;
+		Pause ();
+		gameover = true;
 	}
 
 	//Pauses and plays just the ball
 	public void Pause()
 	{
+		
 		speed = 0;
+		lastAccel = accel;
+		accel = 0;
+
 		lastSpeed = rigidBody.velocity;
 		Vector2 dir = rigidBody.velocity;
 		rigidBody.velocity = dir * speed;
@@ -114,8 +141,11 @@ public class BallController : MonoBehaviour {
 
 	public void Play()
 	{
+		if (gameover == false){ 
 		speed = 30;
+		accel = lastAccel;
+		lastAccel = 0;
 		rigidBody.velocity = lastSpeed;
-
+		}
 	}
 }
