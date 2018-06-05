@@ -7,7 +7,7 @@ public class AIPaddle : MonoBehaviour {
 
 	public BallController theBall;
 
-	public float speed = 40;
+	public float speed = 50;
 
 	public float lerpTweak = 2f;
 

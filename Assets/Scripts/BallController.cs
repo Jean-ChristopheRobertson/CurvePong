@@ -12,6 +12,7 @@ public class BallController : MonoBehaviour {
 	public int rightScore = 0;
 
 	private bool gameover = false;
+	private bool isPaused = false;
 
 	private Rigidbody2D rigidBody;
 
@@ -20,13 +21,17 @@ public class BallController : MonoBehaviour {
 	private Vector2 lastSpeed;
 	[SerializeField] private Text ResultText;
 
+    public AchievementManager achMan;
 
-	// Use this for initialization
-	void Start () {
+
+    // Use this for initialization
+    void Start () {
 
 		rigidBody = GetComponent<Rigidbody2D> ();
 		rigidBody.velocity = Vector2.right * speed;
-	}
+
+        achMan = FindObjectOfType(typeof(AchievementManager)) as AchievementManager;
+    }
 	
 	void OnCollisionEnter2D(Collision2D col)  //Collider Manager
 	{
@@ -82,7 +87,7 @@ public class BallController : MonoBehaviour {
 		}
 
 		rigidBody.velocity = dir * speed;
-		accel = col.otherRigidbody.velocity.y/10; //The "curve" factor
+		accel =  -col.otherRigidbody.velocity.y/10; //The "curve" factor
 
 
 		SoundManager.Instance.PlayOneShot (SoundManager.Instance.HitPaddleSfx);
@@ -107,10 +112,17 @@ public class BallController : MonoBehaviour {
 		int score = int.Parse (textUIComp.text);
 		score++;
 		textUIComp.text = score.ToString ();
+
+        if(textUIName == "LeftscoreUI")
+        {
+            achMan.RegisterEvent(AchievementType.Score);
+        }
 		if (score >= 11) {
 			if (textUIName == "LeftScoreUI") {
 
 				EndGame ("You Win!");
+                achMan.RegisterEvent(AchievementType.Wins);
+
 			} else {
 				EndGame ("You Lose");
 			}
@@ -129,23 +141,27 @@ public class BallController : MonoBehaviour {
 	//Pauses and plays just the ball
 	public void Pause()
 	{
-		
-		speed = 0;
-		lastAccel = accel;
-		accel = 0;
+		if (isPaused == false) {
+			speed = 0;
+			lastAccel = accel;
+			accel = 0;
 
-		lastSpeed = rigidBody.velocity;
-		Vector2 dir = rigidBody.velocity;
-		rigidBody.velocity = dir * speed;
+			lastSpeed = rigidBody.velocity;
+			Vector2 dir = rigidBody.velocity;
+			rigidBody.velocity = dir * speed;
+
+			isPaused = true;
+		} 
 	}
 
 	public void Play()
 	{
-		if (gameover == false){ 
-		speed = 30;
-		accel = lastAccel;
-		lastAccel = 0;
-		rigidBody.velocity = lastSpeed;
+		if (gameover == false && isPaused == true){ 
+			speed = 30;
+			accel = lastAccel;
+			lastAccel = 0;
+			rigidBody.velocity = lastSpeed;
+			isPaused = false;
 		}
 	}
 }

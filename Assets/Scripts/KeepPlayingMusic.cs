@@ -4,13 +4,26 @@ using UnityEngine;
 
 public class KeepPlayingMusic : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
+    public static KeepPlayingMusic Instance = null;
+
+    // Use this for initialization
+    void Start () {
+
+        if (Instance == null)
+        {
+            DontDestroyOnLoad(gameObject); //Dont stop the music
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+    }
 	
 	// Update is called once per frame
 	void Update () {
-		DontDestroyOnLoad (gameObject); //Dont stop the music
+		
 	}
 }

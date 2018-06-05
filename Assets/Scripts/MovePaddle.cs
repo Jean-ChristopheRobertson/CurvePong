@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MovePaddle : MonoBehaviour {
 
-	public float speed = 40;
+	public float speed = 50;
 
 
 	void FixedUpdate(){
